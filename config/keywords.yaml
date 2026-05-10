@@ -1,0 +1,33 @@
+# 記事フィルタに使うキーワード。タイトル+本文のいずれかにマッチで採用。
+# 大文字小文字は無視されます。
+include_any:
+  # Claude Code 関連
+  - "claude code"
+  - "claude-code"
+  - "claudecode"
+  - "クロードコード"
+  # Codex / GPT-5 系
+  - "codex"
+  - "openai codex"
+  # AI コーディング副業の周辺語
+  - "ai side hustle"
+  - "ai sidehustle"
+  - "ai side project"
+  - "ai freelance"
+  - "vibe coding"
+  - "ai agent business"
+  - "ai automation business"
+  - "indie hacker"
+  - "indiehackers"
+  - "副業"
+  - "個人開発"
+  - "マネタイズ"
+  - "受託"
+  - "ai 受託"
+
+# 必ず除外するワード（広告・スパム対策）
+exclude_any:
+  - "course launch"
+  - "buy my course"
+  - "promo code"
+  - "casino"

@@ -1,0 +1,57 @@
+# 収集ソースの定義。各 collector が読み取って巡回します。
+
+# Reddit: 各サブレディットの new.json を取得（認証不要）
+reddit_subs:
+  - sideproject
+  - SaaS
+  - EntrepreneurRideAlong
+  - indiehackers
+  - ClaudeAI
+  - ChatGPTCoding
+  - LocalLLaMA
+  - artificial
+  - ArtificialIntelligence
+
+# Hacker News (Algolia): クエリに対する直近24h検索
+hn_queries:
+  - "Claude Code"
+  - "Codex"
+  - "AI side project"
+  - "AI agent business"
+  - "vibe coding"
+  - "indie hacker AI"
+
+# dev.to: タグ別最新記事
+devto_tags:
+  - ai
+  - claude
+  - claudecode
+  - codex
+  - sideproject
+  - indiehackers
+  - aiagents
+
+# 汎用RSS（Zenn/Qiita/個人ブログ等）
+rss_feeds:
+  # Zenn トピック
+  - https://zenn.dev/topics/claudecode/feed
+  - https://zenn.dev/topics/codex/feed
+  - https://zenn.dev/topics/ai/feed
+  - https://zenn.dev/topics/個人開発/feed
+  - https://zenn.dev/topics/副業/feed
+  # Qiita タグ
+  - https://qiita.com/tags/claudecode/feed
+  - https://qiita.com/tags/codex/feed
+  - https://qiita.com/tags/個人開発/feed
+  # AI / LLM 系企業ブログ・ニュース
+  - https://huggingface.co/blog/feed.xml
+  - https://simonwillison.net/atom/everything/
+
+# X(Twitter) のユーザータイムラインを Nitter RSS 経由で（ベストエフォート）
+nitter_users:
+  - AnthropicAI
+  - OpenAI
+  - alexalbert__
+  - sama
+  - levelsio
+  - dharmesh

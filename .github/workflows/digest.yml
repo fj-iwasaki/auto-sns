@@ -1,0 +1,83 @@
+name: SNS digest to Teams
+
+on:
+  schedule:
+    # JST 07:00 = UTC 22:00 (前日)
+    - cron: "0 22 * * *"
+    # JST 12:00 = UTC 03:00
+    - cron: "0 3 * * *"
+    # JST 17:00 = UTC 08:00
+    - cron: "0 8 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "morning / noon / evening"
+        required: false
+        default: "morning"
+      dry_run:
+        description: "dry-run (true で送信しない)"
+        required: false
+        default: "false"
+
+permissions:
+  contents: write  # state/seen.json をコミットして次回デデュープに使う
+
+concurrency:
+  group: digest
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve slot from cron
+        id: slot
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "slot=${{ github.event.inputs.slot }}" >> "$GITHUB_OUTPUT"
+            echo "dry=${{ github.event.inputs.dry_run }}" >> "$GITHUB_OUTPUT"
+          else
+            case "${{ github.event.schedule }}" in
+              "0 22 * * *") echo "slot=morning" >> "$GITHUB_OUTPUT" ;;
+              "0 3 * * *")  echo "slot=noon"    >> "$GITHUB_OUTPUT" ;;
+              "0 8 * * *")  echo "slot=evening" >> "$GITHUB_OUTPUT" ;;
+              *)            echo "slot=morning" >> "$GITHUB_OUTPUT" ;;
+            esac
+            echo "dry=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Run digest
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+          NITTER_INSTANCES: ${{ vars.NITTER_INSTANCES }}
+          MAX_ITEMS: ${{ vars.MAX_ITEMS }}
+        run: |
+          if [ "${{ steps.slot.outputs.dry }}" = "true" ]; then
+            python -m src.main --slot "${{ steps.slot.outputs.slot }}" --dry-run
+          else
+            python -m src.main --slot "${{ steps.slot.outputs.slot }}"
+          fi
+
+      - name: Persist seen cache
+        if: success()
+        run: |
+          if [ -f state/seen.json ]; then
+            git config user.email "actions@github.com"
+            git config user.name  "github-actions"
+            git add state/seen.json
+            if ! git diff --cached --quiet; then
+              git commit -m "chore(state): update seen cache [skip ci]"
+              git push
+            fi
+          fi
